@@ -1,5 +1,8 @@
 import { useSerial } from '@/contexts/serial';
-import { useState } from 'react';
+import useSystem from '@/hooks/useSystem';
+import SafeArea from '@/layouts/safe-area';
+import { Navbar, NavbarBrand } from '@heroui/react';
+import { useEffect, useState } from 'react';
 import DefaultLayout from '../layouts/default';
 
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -30,6 +33,14 @@ export default function HomePage() {
   const [localSens, setLocalSens] = useState(sensVPerA);
   const [selectedPort, setSelectedPort] = useState<string>('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const { platform } = useSystem();
+
+  useEffect(() => {
+    if (platform) {
+      console.log('Platform:', platform);
+    }
+  }, [platform]);
 
   const handleConnect = async () => {
     if (selectedPort) {
@@ -71,138 +82,167 @@ export default function HomePage() {
 
   return (
     <DefaultLayout>
-      <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Controle de Porta Serial</h1>
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <p><strong>Porta Atual:</strong> {port || 'Nenhuma'}</p>
-            <p><strong>Status:</strong> {isConnected ? 'Conectado' : 'Desconectado'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium">Porta Serial</label>
-            <select
-              value={selectedPort}
-              onChange={(e) => setSelectedPort(e.target.value)}
-              className="mt-1 block w-full border rounded p-2"
-              disabled={isConnected}
-            >
-              <option value="">Selecione uma porta</option>
-              {availablePorts.map((port) => (
-                <option key={port} value={port}>
-                  {port}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-        <p><strong>Mensagem de Status:</strong> {statusMessage || 'Nenhuma'}</p>
+      <SafeArea>
+        <Navbar className={`bg-transparent ${platform === "darwin" && 'pt-5'}`} maxWidth='full'>
+          {/* Header Section */}
+          <NavbarBrand className='flex flex-col items-start w-full'>
+            <h1 className="text-3xl font-semibold text-[#1d1d1f] dark:text-white">Monitor de Energia</h1>
+            <p className="text-sm text-[#86868b]">Monitoramento de energia elétrica em tempo real</p>
+          </NavbarBrand>
+        </Navbar>
+        <div className="flex flex-col p-6 space-y-6 w-[100%] ">
 
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Configurações do Dispositivo</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium">Voltagem Nominal (V)</label>
-              <input
-                type="number"
-                value={localMainsV}
-                onChange={(e) => setLocalMainsV(parseFloat(e.target.value))}
-                className="mt-1 block w-full border rounded p-2"
+
+          {/* Connection Status Card */}
+          <div className="bg-white dark:bg-[#2c2c2e] rounded-xl p-6 shadow-sm">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2">
+                  <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                  <p className="text-sm text-[#86868b]">Status: {isConnected ? 'Conectado' : 'Desconectado'}</p>
+                </div>
+                <p className="text-sm text-[#86868b]">Porta Atual: {port || 'Nenhuma'}</p>
+              </div>
+              <div>
+                <select
+                  value={selectedPort}
+                  onChange={(e) => setSelectedPort(e.target.value)}
+                  className="w-full p-2 bg-[#f5f5f7] dark:bg-[#3a3a3c] border-0 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+                  disabled={isConnected}
+                >
+                  <option value="">Selecione uma porta</option>
+                  {availablePorts.map((port) => (
+                    <option key={port} value={port}>{port}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Device Configuration Card */}
+          <div className="bg-white dark:bg-[#2c2c2e] rounded-xl p-6 shadow-sm">
+            <h2 className="text-xl font-medium mb-4">Configurações do Dispositivo</h2>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <label className="text-sm text-[#86868b] mb-2 block">Voltagem Nominal (V)</label>
+                <input
+                  type="number"
+                  value={localMainsV}
+                  onChange={(e) => setLocalMainsV(parseFloat(e.target.value))}
+                  className="w-full p-2 bg-[#f5f5f7] dark:bg-[#3a3a3c] border-0 rounded-lg"
+                  disabled={!isConnected}
+                />
+              </div>
+              <div>
+                <label className="text-sm text-[#86868b] mb-2 block">Corrente RMS (A)</label>
+                <input
+                  type="number"
+                  value={irms.toFixed(3)}
+                  className="w-full p-2 bg-[#f5f5f7] dark:bg-[#3a3a3c] border-0 rounded-lg opacity-60"
+                  disabled
+                />
+              </div>
+            </div>
+
+            {showAdvanced && (
+              <div className="grid grid-cols-2 gap-6 mt-4">
+                <div>
+                  <label className="text-sm text-[#86868b] mb-2 block">Fator de Potência</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={localPf}
+                    onChange={(e) => setLocalPf(parseFloat(e.target.value))}
+                    className="w-full p-2 bg-[#f5f5f7] dark:bg-[#3a3a3c] border-0 rounded-lg"
+                    disabled={!isConnected}
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-[#86868b] mb-2 block">Sensibilidade (V/A)</label>
+                  <input
+                    type="number"
+                    step="0.001"
+                    value={localSens}
+                    onChange={(e) => setLocalSens(parseFloat(e.target.value))}
+                    className="w-full p-2 bg-[#f5f5f7] dark:bg-[#3a3a3c] border-0 rounded-lg"
+                    disabled={!isConnected}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex space-x-3 mt-6">
+              <button
+                onClick={handleApplyConfig}
                 disabled={!isConnected}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium">Corrente RMS (A) - Somente Leitura</label>
-              <input
-                type="number"
-                value={irms.toFixed(3)}
-                className="mt-1 block w-full border rounded p-2 bg-gray-100"
-                disabled
-              />
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
+              >
+                Aplicar Configurações
+              </button>
+              <button
+                onClick={toggleAdvanced}
+                className="px-4 py-2 bg-[#e5e5ea] dark:bg-[#3a3a3c] text-[#1d1d1f] dark:text-white rounded-lg hover:bg-[#d1d1d6] transition-colors"
+              >
+                {showAdvanced ? 'Ocultar Avançado' : 'Mostrar Avançado'}
+              </button>
             </div>
           </div>
-          {showAdvanced && (
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className="block text-sm font-medium">Fator de Potência</label>
-                <input
-                  type="number"
-                  step="0.01"
-                  value={localPf}
-                  onChange={(e) => setLocalPf(parseFloat(e.target.value))}
-                  className="mt-1 block w-full border rounded p-2"
-                  disabled={!isConnected}
-                />
+
+          {/* Real-time Data Card */}
+          <div className="bg-white dark:bg-[#2c2c2e] rounded-xl p-6 shadow-sm">
+            <h2 className="text-xl font-medium mb-4">Dados em Tempo Real</h2>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="bg-[#f5f5f7] dark:bg-[#3a3a3c] p-4 rounded-lg">
+                <p className="text-sm text-[#86868b]">Corrente RMS</p>
+                <p className="text-xl font-medium">{irms.toFixed(3)} A</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium">Sensibilidade (V/A)</label>
-                <input
-                  type="number"
-                  step="0.001"
-                  value={localSens}
-                  onChange={(e) => setLocalSens(parseFloat(e.target.value))}
-                  className="mt-1 block w-full border rounded p-2"
-                  disabled={!isConnected}
-                />
+              <div className="bg-[#f5f5f7] dark:bg-[#3a3a3c] p-4 rounded-lg">
+                <p className="text-sm text-[#86868b]">Potência</p>
+                <p className="text-xl font-medium">{powerW.toFixed(1)} W</p>
+              </div>
+              <div className="bg-[#f5f5f7] dark:bg-[#3a3a3c] p-4 rounded-lg">
+                <p className="text-sm text-[#86868b]">Energia</p>
+                <p className="text-xl font-medium">{energyKWh.toFixed(6)} kWh</p>
               </div>
             </div>
-          )}
-          <div className="mt-4 space-x-2">
+          </div>
+
+          {/* Log Card */}
+          <div className="bg-white dark:bg-[#2c2c2e] rounded-xl p-6 shadow-sm">
+            <h2 className="text-xl font-medium mb-4">Log de Dados</h2>
+            <textarea
+              className="w-full h-32 bg-[#f5f5f7] dark:bg-[#3a3a3c] border-0 rounded-lg p-3 font-mono text-sm"
+              value={receivedData}
+              readOnly
+            />
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex space-x-3">
             <button
-              className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 disabled:bg-gray-400"
-              onClick={handleApplyConfig}
+              onClick={handleConnect}
+              disabled={isConnected || !selectedPort}
+              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors"
+            >
+              Conectar
+            </button>
+            <button
+              onClick={disconnect}
               disabled={!isConnected}
+              className="px-6 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 transition-colors"
             >
-              Aplicar Configurações
+              Desconectar
             </button>
             <button
-              className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-              onClick={toggleAdvanced}
+              onClick={handleSend}
+              disabled={!isConnected}
+              className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 transition-colors"
             >
-              {showAdvanced ? 'Ocultar Opções Avançadas' : 'Mostrar Opções Avançadas'}
+              Enviar Teste
             </button>
           </div>
         </div>
-
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Dados em Tempo Real</h2>
-          <p><strong>Corrente RMS (A):</strong> {irms.toFixed(3)}</p>
-          <p><strong>Potência (W):</strong> {powerW.toFixed(1)}</p>
-          <p><strong>Energia Acumulada (kWh):</strong> {energyKWh.toFixed(6)}</p>
-        </div>
-
-        <div className="mt-6">
-          <h2 className="text-xl font-semibold mb-2">Log de Dados Recebidos</h2>
-          <textarea
-            className="w-full h-32 border rounded p-2 font-mono text-sm"
-            value={receivedData}
-            readOnly
-          />
-        </div>
-
-        <div className="mt-4 space-x-2">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400"
-            onClick={handleConnect}
-            disabled={isConnected || !selectedPort}
-          >
-            Conectar
-          </button>
-          <button
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:bg-gray-400"
-            onClick={disconnect}
-            disabled={!isConnected}
-          >
-            Desconectar
-          </button>
-          <button
-            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400"
-            onClick={handleSend}
-            disabled={!isConnected}
-          >
-            Enviar Teste
-          </button>
-        </div>
-      </div>
+      </SafeArea>
     </DefaultLayout>
   );
 }
