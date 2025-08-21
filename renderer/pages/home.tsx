@@ -1,7 +1,7 @@
 import { useSerial } from '@/contexts/serial';
 import useSystem from '@/hooks/useSystem';
 import SafeArea from '@/layouts/safe-area';
-import { Navbar, NavbarBrand } from '@heroui/react';
+import { Navbar, NavbarBrand, Select, SelectItem } from '@heroui/react';
 import { useEffect, useState } from 'react';
 import DefaultLayout from '../layouts/default';
 
@@ -104,17 +104,19 @@ export default function HomePage() {
                 <p className="text-sm text-[#86868b]">Porta Atual: {port || 'Nenhuma'}</p>
               </div>
               <div>
-                <select
-                  value={selectedPort}
-                  onChange={(e) => setSelectedPort(e.target.value)}
-                  className="w-full p-2 bg-[#f5f5f7] dark:bg-[#3a3a3c] border-0 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
-                  disabled={isConnected}
+                <Select
+                  radius='md'
+                  classNames={{ trigger: 'bg-[#f5f5f7] dark:bg-[#3a3a3c]' }}
+                  size='sm'
+                  label="Porta"
+                  placeholder="Selecione uma porta"
+                  defaultSelectedKeys={[selectedPort || availablePorts[0]]}
+                  onChange={(e) => { setSelectedPort(e.target.value) }}
                 >
-                  <option value="">Selecione uma porta</option>
                   {availablePorts.map((port) => (
-                    <option key={port} value={port}>{port}</option>
+                    <SelectItem key={port}>{port}</SelectItem>
                   ))}
-                </select>
+                </Select>
               </div>
             </div>
           </div>
