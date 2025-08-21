@@ -1,18 +1,21 @@
-import type { AppProps } from "next/app";
+import { fontMono, fontSans } from "@/config/fonts";
+import { SerialProvider } from "@/contexts/serial";
 import { HeroUIProvider } from "@heroui/system";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import type { AppProps } from "next/app";
 import { useRouter } from "next/router";
 import "../styles/globals.css";
-import { fontMono, fontSans } from "@/config/fonts";
 
 export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
 
   return (
     <HeroUIProvider navigate={router.push}>
-      <NextThemesProvider attribute="class" defaultTheme="system">
-        <Component {...pageProps} />
-      </NextThemesProvider>
+      <SerialProvider>
+        <NextThemesProvider attribute="class" defaultTheme="system">
+          <Component {...pageProps} />
+        </NextThemesProvider>
+      </SerialProvider>
     </HeroUIProvider>
   );
 }
