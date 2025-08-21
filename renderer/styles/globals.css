@@ -1,3 +1,8 @@
 @import "tailwindcss";
 
+/* Ocultar scrollbars em navegadores baseados em Webkit (Chromium/Electron) */
+::-webkit-scrollbar {
+    display: none;
+}
+
 @config "../tailwind.config.js"
