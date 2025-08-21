@@ -1,0 +1,61 @@
+name: Publish on Production Push
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  publish-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências
+        run: npm install --force
+
+      - name: Build and Publish for Linux
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+        run: npm run publish:linux
+
+  publish-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências
+        run: npm install --force
+
+      - name: Build and Publish for Windows
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+        run: npm run publish:win
+
+  publish-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Instalar dependências
+        run: npm install --force
+
+      - name: Build and Publish for macOS
+        env:
+          GH_TOKEN: ${{ secrets.TOKEN }}
+        run: npm run publish:mac

@@ -1,12 +1,38 @@
 appId: com.birdra1n.plugmonitor
 productName: PlugMonitor
 copyright: Copyright © 2025 BirdRa1n
+
 directories:
   output: dist
   buildResources: resources
+
 files:
   - from: .
     filter:
       - package.json
       - app
-publish: null
+
+mac:
+  target:
+    - dmg
+  category: public.app-category.utilities
+
+linux:
+  target:
+    - AppImage
+    - deb
+  category: Utility
+
+publish:
+  provider: github
+  owner: BirdRa1n
+  repo: PlugMonitor
+  releaseType: release
+
+extraResources:
+  - from: resources/icon.png
+    to: icon.png
+
+protocols:
+  name: PlugMonitor
+  schemes: [PlugMonitor]
