@@ -30,6 +30,9 @@ const handler = {
   sendSerialData: async (data: string) => {
     return ipcRenderer.invoke('send-serial-data', data);
   },
+  getSystemInfo: async () => {
+    return ipcRenderer.invoke('get-system-info');
+  },
   onSerialData: (callback: (data: string) => void) => {
     const subscription = (_event: IpcRendererEvent, data: string) => callback(data);
     ipcRenderer.on('serial-data-received', subscription);
