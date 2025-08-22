@@ -14,6 +14,8 @@
 
 PlugMonitor é um aplicativo desktop multiplataforma desenvolvido com Electron para monitoramento em tempo real do consumo elétrico através de comunicação serial. Oferece uma interface moderna e intuitiva para visualizar dados de consumo, configurar parâmetros do dispositivo e identificar padrões no uso de energia.
 
+> **💡 Projeto Completo**: Este aplicativo desktop funciona em conjunto com **PlugMonitorESP8266** que roda em microcontroladores ESP8266 com sensor ACS712. Para o projeto completo de hardware e firmware, consulte: [PlugMonitorESP8266](https://github.com/BirdRa1n/PlugMonitorESP8266)
+
 ## ✨ Principais Funcionalidades
 
 ### 🔌 **Comunicação Serial Avançada**
@@ -55,10 +57,16 @@ PlugMonitor é um aplicativo desktop multiplataforma desenvolvido com Electron p
 
 ## 📋 Pré-requisitos
 
+### Software
 - **Node.js** v16 ou superior
 - **npm** ou **yarn**
 - **Git**
-- Dispositivo compatível conectado via porta serial
+
+### Hardware
+- **Dispositivo PlugMonitorESP8266** configurado e conectado via porta serial
+  - ESP8266 D1 Mini com firmware PlugMonitorESP8266
+  - Sensor de corrente ACS712 (5A, 20A ou 30A)
+  - Para instruções completas de montagem e configuração do hardware, consulte: [README do Microcontrolador](README%20(1).md)
 
 ## 🚀 Instalação e Execução
 
@@ -112,6 +120,29 @@ PlugMonitor/
 ├── electron-builder.yml     # Configuração do build
 └── package.json            # Configuração do projeto
 ```
+
+## 🏗️ Sistema Completo PlugMonitor
+
+O PlugMonitor é composto por duas partes principais que trabalham em conjunto:
+
+### 🔌 Hardware (PlugMonitorESP8266)
+- **Microcontrolador**: ESP8266 D1 Mini
+- **Sensor**: ACS712 para medição de corrente
+- **Função**: Coleta dados elétricos e comunica via serial
+- **Documentação**: [README do Microcontrolador](README%20(1).md)
+
+### 🖥️ Software (PlugMonitor Desktop)
+- **Plataforma**: Aplicativo Electron multiplataforma
+- **Função**: Interface gráfica, visualização e configuração
+- **Comunicação**: Recebe dados e envia comandos via serial
+
+### 🔄 Fluxo de Funcionamento
+1. **Hardware** mede corrente elétrica usando sensor ACS712
+2. **ESP8266** processa dados e calcula potência/energia
+3. **Dados** são enviados via serial para o aplicativo desktop
+4. **Interface** exibe informações em tempo real
+5. **Usuário** pode configurar parâmetros através da interface
+6. **Comandos** são enviados de volta ao hardware
 
 ## 🔧 Configuração do Dispositivo
 
